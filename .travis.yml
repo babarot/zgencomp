@@ -1,0 +1,10 @@
+language: go
+
+install:
+    - go get github.com/jessevdk/go-flags
+
+before_script:
+    - make install
+
+script:
+    - go test -v

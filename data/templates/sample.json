@@ -1,0 +1,192 @@
+{
+    // Command name you want to complement
+    "command" : "mycmd",
+
+    // Property for the command
+    "properties" : {
+        "author" : "John Doe",
+        "license" : "MIT",
+
+
+        // For the help and version, it is treated as
+        // one of the attribute information instead of
+        // the normal options (special option).
+        // The reason for this is because in accordance
+        // with the GNU command-line interfaces style.
+        // cf https://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html
+        "help" : {
+            // Although not talking limited only this 'help', 
+            // if the "option" does not have the one or more elements,
+            // that option is not enabled.
+            // ( Example )
+            // "option" : [] => Not available
+            "option" : [
+                "-h",
+                "--help"
+            ],
+
+            // Description of commands that are displayed during completion
+            // ( Example )
+            // -h, --help    something description
+            "description" : "show this help and exit"
+        },
+
+        // Almost same as "help"
+        "version" : {
+            "option" : [
+                "-V",
+                "--version"
+            ],
+            "description" : "show version"
+        }
+    },
+
+    // Normal option {{{1
+    // The normal option consists of flag options that always take arguments 
+    // and switch options that take no arguments.
+    // (However, the flag option might be omitted arguments.
+    //  This does not mean that no arguments.)
+    "options" : {
+
+        // Switch options {{{2
+        "switch" : [
+            {
+                "option" : [
+                    "-p",
+                    "--plain"
+                ],
+                "description" : "show with plain text",
+
+                // The exclusive control of the option
+                // Normally, there is no need to specify the same options at a time
+                // eg. `ls -l -l file`
+                // In addition, optional command has the combination is meaningless
+                // by specifying the same time.
+                // For example, ssh -4, -6 option is specified
+                // to explicitly connect to each IPv4, IPv6
+                // It is meaningless to specify both this.
+                // This exclusion item will remove the option that has already
+                // appeared on the command line and the meaningless option
+                // from the following completion.
+                "exclusion" : [
+                ]
+            },
+
+            // empty
+            {
+                "option" :  [
+                ],
+                "description" : ""
+            }
+        ],
+        // }}}
+
+        // Flag options {{{2
+        "flag" : [
+            {
+                "option" : [
+                    "-A",
+                    "--after-context"
+                ],
+                "description" : "Print num lines of trailing context after each match",
+
+                "exclusion" : [
+                    "-p"
+                ],
+
+                // Defin arguments that flag option to take.
+                "argument" : {
+                    // Complement word is grouped when complement
+                    // Set the group name here
+                    // If blank, do not set the group name.
+                    "group" : "",
+
+                    // Define the kind of argument that flag option takes
+                    // Select from the following
+                    // "file", "dir", "func"
+                    //
+                    // If you want to specify complement words directly, try to below.
+                    // "type" : [
+                    //     "init",
+                    //     "add",
+                    //     "commit"
+                    // ],
+                    //
+                    // Take as follows if you want to add a description of the complement word.
+                    // "type" : {
+                    //     "init" : "Create an empty Git repository or reinitialize an existing one",
+                    //     "add" : "Add file contents to the index",
+                    //     "commit" : "Record changes to the repository"
+                    // },
+                    "type" : "func",
+
+                    // Define a way of taking the argument of flag options
+                    // Flag style should be applicable to any of the following
+                    // Flag style is required to apply to any of
+                    // "standard", "touch", "touchable", "equal" or "equalable"
+                    // Example1： "touch" : ["-A"]
+                    // Example2： "equal" : ["-A", "--after-context"]
+                    // Options that are not affiliated is treated as "standard".
+                    // If the option is belong to more than one style, first style is adapted.
+                    // Example3: "touch" : ["-A"], "equal" : ["-A"] => "touch"
+                    "style" : {
+                            // standard is
+                            // -opt VAL
+                            "standard" : ["-A"],
+
+                            // touch is
+                            // -optVAL
+                            "touch" : [],
+
+                            // touchable is
+                            // -optVAL or -opt VAL
+                            "touchable" : [],
+
+                            // equal is
+                            // -opt=VAL
+                            "equal" : ["--after-context"],
+
+                            // equalable is
+                            // -opt=VAL or -opt VAL
+                            "equalable" : []
+                    }
+                }
+            },
+
+            // empty
+            {
+                "option" : [
+                ],
+                "description" : "",
+                "exclusion" : [
+                ],
+                "argument": {
+                    "group" : "",
+                    "type" : "",
+                    "style" : {
+                        "standard" : [],
+                        "touch" : [],
+                        "touchable" : [],
+                        "equal" : [],
+                        "equalable" : []
+                    }
+                }
+            }
+        ]
+        // }}}
+    },
+    // }}}
+
+    // Arguments of the command {{{1
+    "arguments" : {
+        // Whether the command requires arguments
+        // `mkdir` => true
+        // `cd`    => false
+        "always" : true,
+
+        // Almost same as type od flag option
+        "type" : "func"
+    }
+    // }}}
+}
+// vim: fdm=marker
