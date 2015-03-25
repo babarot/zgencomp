@@ -109,11 +109,7 @@ func readJson(f string) (jd JsonData, err error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		if m, _ := regexp.MatchString("^ *\\/\\/", scanner.Text()); !m {
-			if m, _ := regexp.MatchString("^ *\\/\\*", scanner.Text()); !m {
-				if m, _ := regexp.MatchString("^ *\\*\\/", scanner.Text()); !m {
-					contents += scanner.Text() + "\n"
-				}
-			}
+			contents += scanner.Text() + "\n"
 		}
 	}
 	err = scanner.Err()
@@ -376,9 +372,35 @@ func dealWithDescription(s string) (ret string) {
 
 //}}}
 
-// helperTrimArrowInType {{{
-func helperTrimArrowInType(s string) string {
-	return strings.TrimLeft(s, "->")
+// dealWithFlagArgumentStyle {{{
+func dealWithFlagArgumentStyle(s Flag) (ret []string) {
+	retMap := make(map[string][]string)
+
+	for k, v := range s.Argument.Style {
+		// Skip blank value
+		// map[equal:[--after-context] equalable:[] standard:[-A] touch:[-a] touchable:[]]
+		// ==> map[standard:[-A] touch:[-a] equal:[--after-context]]
+		if len(v) == 0 {
+			continue
+		}
+
+		// Skip invalid value
+		// map[standard:[-A] touch:[-a] equal:[--after-context]]
+		// ==> map[standard:[-A] equal:[--after-context]]
+		for _, e := range v {
+			if stringInSlice(e, s.Option) {
+				retMap[k] = v
+			}
+		}
+	}
+
+	var retSlice []string
+	for _, e := range s.Option {
+		if t := helperAddFlagArgumentStyle(retMap, e); t != "" {
+			retSlice = append(retSlice, t)
+		}
+	}
+	return retSlice
 }
 
 //}}}
@@ -426,34 +448,82 @@ func setFlagMessage(s Flag) (ret string) {
 
 //}}}
 
-// dealWithFlagArgumentStyle {{{
-func dealWithFlagArgumentStyle(s Flag) (ret []string) {
-	//retSlice := s.Option
-	retMap := make(map[string][]string)
+// setAction {{{
+// set action of completion
+func setAction(s interface{}) (ret string) {
+	backup := s
+	isFlag := false
 
-	for k, v := range s.Argument.Style {
-		// Skip blank value
-		// map[equal:[--after-context] equalable:[] standard:[-A] touch:[-a] touchable:[]]
-		// ==> map[standard:[-A] touch:[-a] equal:[--after-context]]
-		if len(v) == 0 {
-			continue
-		}
+	switch s.(type) {
+	case Flag:
+		s = s.(Flag).Argument.Type
+		isFlag = true
+	}
 
-		// Skip invalid value
-		// map[standard:[-A] touch:[-a] equal:[--after-context]]
-		// ==> map[standard:[-A] equal:[--after-context]]
-		for _, e := range v {
-			if stringInSlice(e, s.Option) {
-				retMap[k] = v
+	switch s.(type) {
+	case string:
+		// assume "func" and so on
+		ret = s.(string)
+		switch ret {
+		case "func":
+			var opt string
+			if isFlag {
+				if len(backup.(Flag).Option) == 0 {
+					return
+				}
+				opt = backup.(Flag).Option[0]
+				re, _ := regexp.Compile("^(--?|\\+)")
+				opt = re.ReplaceAllString(opt, "")
+				ret = opt + "_func"
+			} else {
+				ret = "args"
 			}
+			ret = "->" + ret
+		case "file":
+			ret = "_files"
+		case "dir", "directory":
+			ret = "_files -/"
+		default:
+			ret = " "
 		}
+
+	case []string:
+		// assume "(word1 word2...)"
+		ret = strings.Join(s.([]string), " ")
+		ret = "(" + ret + ")"
+
+	case []interface{}:
+		// assume "(word1 word2...)"
+		for _, v := range s.([]interface{}) {
+			ret = ret + " " + v.(string)
+		}
+		ret = "(" + strings.TrimSpace(ret) + ")"
+
+	case map[string]string:
+		// assume "((word1\:desc1 word2\:desc2...))"
+		for k, v := range s.(map[string]string) {
+			ret = ret + k + "\\:" + "\"" + v + "\"" + " "
+		}
+		ret = "((" + strings.TrimSpace(ret) + "))"
+
+	case map[string]interface{}:
+		for k, v := range s.(map[string]interface{}) {
+			ret = ret + k + "\\:" + "\"" + v.(string) + "\"" + " "
+		}
+		ret = "((" + strings.TrimSpace(ret) + "))"
+
+	default:
+		ret = "[[Parse Error]]"
 	}
 
-	var retSlice []string
-	for _, e := range s.Option {
-		retSlice = append(retSlice, helperAddFlagArgumentStyle(retMap, e))
-	}
-	return retSlice
+	return
+}
+
+//}}}
+
+// helperTrimArrowInType {{{
+func helperTrimArrowInType(s string) string {
+	return strings.TrimLeft(s, "->")
 }
 
 //}}}
@@ -497,79 +567,9 @@ func helperAddFlagArgumentStyle(m map[string][]string, s string) (ret string) {
 					return
 				}
 			}
-		default:
 		}
 	}
 	ret = s
-	return
-}
-
-//}}}
-
-// setAction {{{
-// set action of completion
-func setAction(s interface{}) (ret string) {
-	backup := s
-	isFlag := false
-
-	switch s.(type) {
-	case Flag:
-		s = s.(Flag).Argument.Type
-		isFlag = true
-	}
-
-	switch s.(type) {
-	case string:
-		// assume "func" and so on
-		ret = s.(string)
-		switch ret {
-		case "func":
-			var opt string
-			if isFlag {
-				opt = backup.(Flag).Option[0]
-				re, _ := regexp.Compile("^(--?|\\+)")
-				opt = re.ReplaceAllString(opt, "")
-				ret = opt + "_func"
-			} else {
-				ret = "args"
-			}
-			ret = "->" + ret
-		case "file":
-			ret = "_files"
-		case "dir", "directory":
-			ret = "_files -/"
-		default:
-			ret = " "
-		}
-
-	case []string:
-		// assume "(word1 word2...)"
-		ret = strings.Join(s.([]string), " ")
-		ret = "(" + ret + ")"
-	case []interface{}:
-		// assume "(word1 word2...)"
-		for _, v := range s.([]interface{}) {
-			ret = ret + " " + v.(string)
-		}
-		ret = "(" + strings.TrimSpace(ret) + ")"
-
-	case map[string]string:
-		// assume "((word1\:desc1 word2\:desc2...))"
-		for k, v := range s.(map[string]string) {
-			ret = ret + k + "\\:" + "\"" + v + "\"" + " "
-		}
-		ret = "((" + strings.TrimSpace(ret) + "))"
-
-	case map[string]interface{}:
-		for k, v := range s.(map[string]interface{}) {
-			ret = ret + k + "\\:" + "\"" + v.(string) + "\"" + " "
-		}
-		ret = "((" + strings.TrimSpace(ret) + "))"
-
-	default:
-		ret = "D A N"
-	}
-
 	return
 }
 
