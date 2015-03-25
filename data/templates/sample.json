@@ -184,6 +184,8 @@
         // `cd`    => false
         "always" : true,
 
+        "after_arg" : false,
+
         // Almost same as type od flag option
         "type" : "func"
     }
