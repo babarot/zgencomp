@@ -123,7 +123,7 @@ I have extended the json file used by `zgencomp`. Thanks to that, you **can writ
                     "group" : "",
                     "type" : "func",
                     "style" : {
-                            "standard" : ["-,"],
+                            "standard" : ["-m"],
                             "touch" : [],
                             "touchable" : [],
                             "equal" : ["--max--count"],
