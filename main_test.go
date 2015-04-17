@@ -675,10 +675,11 @@ func TestSetArgumentIfMap(t *testing.T) {
 	}
 
 	actual := setAction(f)
-	expected := "((word1\\:\"desc1\" word2\\:\"desc2\"))"
+	expected1 := "((word1\\:\"desc1\" word2\\:\"desc2\"))"
+	expected2 := "((word2\\:\"desc2\" word1\\:\"desc1\"))"
 
-	if actual != expected {
-		t.Errorf("got %v\nwant %v", actual, expected)
+	if actual != expected1 && actual != expected2 {
+		t.Errorf("got %v\nwant %v or %v", actual, expected1, expected2)
 	}
 }
 
@@ -701,10 +702,11 @@ func TestSetArgumentIfMapInterface(t *testing.T) {
 	}
 
 	actual := setAction(f)
-	expected := "((word1\\:\"desc1\" word2\\:\"desc2\"))"
+	expected1 := "((word1\\:\"desc1\" word2\\:\"desc2\"))"
+	expected2 := "((word2\\:\"desc2\" word1\\:\"desc1\"))"
 
-	if actual != expected {
-		t.Errorf("got %v\nwant %v", actual, expected)
+	if actual != expected1 && actual != expected2 {
+		t.Errorf("got %v\nwant %v or %v", actual, expected1, expected2)
 	}
 }
 
