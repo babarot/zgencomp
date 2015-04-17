@@ -16,6 +16,11 @@ A generator for Zsh completion function
 
 [![zgencomp.gif](data/zgencomp.gif)](https://github.com/b4b4r07/zgencomp#installation "b4b4r07/zgencomp")
 
+## Features
+
+- Easily and instantly generatable
+- Just edit JSON file
+
 ## Requirement
 
 - Go
