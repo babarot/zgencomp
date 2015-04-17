@@ -1,7 +1,10 @@
 # zgencomp
 
 [![Build Status](https://travis-ci.org/b4b4r07/zgencomp.svg?branch=master)](https://travis-ci.org/b4b4r07/zgencomp "Travis CI")
+
+<!--
 [![License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/b4b4r07/dotfiles/master/doc/LICENSE-MIT.txt "License MIT")
+-->
 
 A generator for Zsh completion function
 
@@ -159,8 +162,18 @@ I have extended the json file used by `zgencomp`. Thanks to that, you **can writ
 }
 ```
 
+## Author
+
+[@b4b4r07](https://twitter.com/b4b4r07)
+
+## Licence
+
+[MIT](https://raw.githubusercontent.com/b4b4r07/dotfiles/master/doc/LICENSE-MIT.txt)
+
+<!--
 ## Licence
 
 Copyright (c) 2014 "BABAROT" b4b4r07
 
 Licensed under the [MIT](https://raw.githubusercontent.com/b4b4r07/dotfiles/master/doc/LICENSE-MIT.txt).
+-->
