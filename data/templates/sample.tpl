@@ -21,9 +21,12 @@ function _{{.Command}}() {
       {{range .Options.Flag -}}
         '{{.| dealWithFlagExclusion}}{{.| dealWithFlagOption}}[{{.Description | dealWithDescription}}]:{{.| setFlagMessage}}:{{.| setAction}}' \
       {{end -}}
+      {{if .Arguments -}}
         '{{if not .Arguments.After_arg}}(-){{end}}*:arguments:{{.Arguments.Type | setAction}}' \
+      {{end -}}
         && ret=0
 
+  {{if .Arguments -}}
     case $state in
         {{range .Options.Flag}}{{if .Option | whetherOptionIsEnabled}}{{if .Argument.Type | whetherTypeIsFunc}}{{.| setAction | helperTrimArrowInType}})
           # TODO
@@ -32,6 +35,7 @@ function _{{.Command}}() {
           # TODO
           ;;{{end}}
     esac
+  {{end -}}
 
     return ret
 }
