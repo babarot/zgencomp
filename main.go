@@ -201,7 +201,7 @@ func generateSampleJson(f string) (err error) {
 		}
 	}
 
-	ioutil.WriteFile(f, data, os.ModePerm)
+	ioutil.WriteFile(f, data, 0644)
 	return
 }
 
