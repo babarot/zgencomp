@@ -27,7 +27,7 @@ type JsonData struct {
 	Command    string     `json:"command"`
 	Properties Properties `json:"properties"`
 	Options    Options    `json:"options"`
-	Arguments  Arguments  `json:"arguments"`
+	Arguments  *Arguments `json:"arguments"`
 }
 
 type Properties struct {
@@ -201,7 +201,7 @@ func generateSampleJson(f string) (err error) {
 		}
 	}
 
-	ioutil.WriteFile(f, data, os.ModePerm)
+	ioutil.WriteFile(f, data, 0644)
 	return
 }
 

@@ -9,13 +9,24 @@ function _{{.Command}}() {
     local ret=1
 
     _arguments -C \
+      {{if .Properties.Help.Option -}}
         '{{.Properties.Help.Option | dealWithExclusion}}{{.Properties.Help.Option | dealWithOption}}[{{.Properties.Help.Description | dealWithDescription}}]' \
-        '{{.Properties.Version.Option | dealWithExclusion}}{{.Properties.Version.Option | dealWithOption}}[{{.Properties.Version.Description | dealWithDescription}}]' \{{range .Options.Switch}}{{if .Option | whetherOptionIsEnabled}}
-        '{{.| dealWithSwitchExclusion}}{{.| dealWithSwitchOption}}[{{.Description | dealWithDescription}}]' \{{end}}{{end}}{{range .Options.Flag}}{{if .Option | whetherOptionIsEnabled}}
-        '{{.| dealWithFlagExclusion}}{{.| dealWithFlagOption}}[{{.Description | dealWithDescription}}]:{{.| setFlagMessage}}:{{.| setAction}}' \{{end}}{{end}}
+      {{end -}}
+      {{if .Properties.Version.Option -}}
+        '{{.Properties.Version.Option | dealWithExclusion}}{{.Properties.Version.Option | dealWithOption}}[{{.Properties.Version.Description | dealWithDescription}}]' \
+      {{end -}}
+      {{range .Options.Switch -}}
+        '{{.| dealWithSwitchExclusion}}{{.| dealWithSwitchOption}}[{{.Description | dealWithDescription}}]' \
+      {{end -}}
+      {{range .Options.Flag -}}
+        '{{.| dealWithFlagExclusion}}{{.| dealWithFlagOption}}[{{.Description | dealWithDescription}}]:{{.| setFlagMessage}}:{{.| setAction}}' \
+      {{end -}}
+      {{if .Arguments -}}
         '{{if not .Arguments.After_arg}}(-){{end}}*:arguments:{{.Arguments.Type | setAction}}' \
+      {{end -}}
         && ret=0
 
+  {{if .Arguments -}}
     case $state in
         {{range .Options.Flag}}{{if .Option | whetherOptionIsEnabled}}{{if .Argument.Type | whetherTypeIsFunc}}{{.| setAction | helperTrimArrowInType}})
           # TODO
@@ -24,6 +35,7 @@ function _{{.Command}}() {
           # TODO
           ;;{{end}}
     esac
+  {{end -}}
 
     return ret
 }
